@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalPro Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            colors: {
+              // Primary Palette
+              royalBlue: '#1A3D7C',
+              deepNavy: '#0F1A2A',
+              goldAccent: '#D4AF37',
+              ivoryWhite: '#F8F5F0',
+              coolGray: '#DDE1E4',
+              
+              // Secondary Palette
+              softWhite: '#FAFAFA',
+              mistGray: '#E4E4E4',
+              shadowBlack: '#00000015',
+              frostedBlue: '#BFD4E5',
+
+              // Highlight / CTA
+              electricBlue: '#1976FF',
+              luxuryGold: '#CBA135',
+              emeraldGreen: '#2ECC71',
+              errorRed: '#FF3B30',
+              
+              // Typography
+              charcoalBlack: '#0B0B0B',
+              slateGray: '#6A6F73',
+              silverGray: '#9FA3A7',
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #F8F5F0; /* ivoryWhite */
+        color: #6A6F73; /* slateGray */
+      }
+      .font-display { font-family: 'Playfair Display', serif; }
+
+      .hover-lift {
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      .hover-lift:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.1), 0 8px 12px rgba(0,0,0,0.08);
+      }
+
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      
+      .soft-shadow {
+        box-shadow: 6px 6px 14px #d9d6d1, -6px -6px 14px #ffffff;
+      }
+      .soft-shadow-inset {
+         box-shadow: inset 6px 6px 14px #d9d6d1, inset -6px -6px 14px #ffffff;
+      }
+      
+      .btn-gold-glow {
+        box-shadow: 0 0 10px #CBA135, 0 0 20px #CBA13530;
+      }
+       .btn-green-glow {
+        box-shadow: 0 0 10px #2ECC71, 0 0 20px #2ECC7130;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^6.25.1",
+    "classnames": "https://aistudiocdn.com/classnames@^2.5.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-ivoryWhite text-slateGray">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

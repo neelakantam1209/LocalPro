@@ -1,0 +1,7 @@
+{
+  "name": "LocalPro Finder",
+  "description": "A mobile/web application designed to connect users with local daily wage workers such as electricians, plumbers, tailors, carpenters, drivers, and doctors. The app simplifies finding, contacting, and hiring trusted service providers nearby.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
