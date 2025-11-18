@@ -42,9 +42,9 @@ AI-powered ranking suggests top workers automatically.
 
 Login with secure credentials
 
-Email: sample@gmail.com
+Email: email@gmail.com
 
-Password: sample@123
+Password: Password@123
 
 Admin can:
 
