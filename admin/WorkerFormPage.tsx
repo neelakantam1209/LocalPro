@@ -36,14 +36,14 @@ const WorkerFormPage: React.FC = () => {
 
     return (
         <div>
-            <a href="#/admin/workers" className="flex items-center gap-2 mb-4 text-royalBlue hover:text-goldAccent font-semibold transition-colors">
+            <a href="#/admin/workers" className="flex items-center gap-2 mb-4 text-primary hover:text-accent font-semibold transition-colors">
               <BackArrowIcon />
               Back to Worker List
             </a>
-            <h1 className="text-3xl md:text-4xl font-bold font-display text-deepNavy mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold font-display text-text-primary mb-8">
                 {isEditMode ? `Edit ${worker?.name || 'Worker'}` : 'Add New Worker'}
             </h1>
-            <div className="bg-softWhite p-8 rounded-2xl shadow-lg soft-shadow">
+            <div className="bg-surface p-8 rounded-2xl shadow-lg">
                 <WorkerForm onSubmit={handleSubmit} initialData={worker} />
             </div>
         </div>

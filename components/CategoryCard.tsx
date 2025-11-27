@@ -11,12 +11,12 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onSelect }) => {
   return (
     <div
       onClick={() => onSelect(category)}
-      className="bg-softWhite p-4 rounded-2xl soft-shadow hover-lift cursor-pointer flex flex-col items-center justify-center text-center aspect-square group"
+      className="bg-surface p-4 rounded-2xl shadow-md hover-lift cursor-pointer flex flex-col items-center justify-center text-center aspect-square group"
     >
-      <div className="bg-ivoryWhite rounded-full p-3 sm:p-4 mb-3 soft-shadow-inset transition-all duration-300 group-hover:bg-goldAccent/10">
-        <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-royalBlue transition-colors duration-300 group-hover:text-goldAccent" />
+      <div className="bg-background rounded-full p-3 sm:p-4 mb-3 shadow-inner transition-all duration-300 group-hover:bg-accent-subtle">
+        <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-primary transition-colors duration-300 group-hover:text-accent" />
       </div>
-      <span className="font-semibold text-charcoalBlack text-center text-sm">{category.name}</span>
+      <span className="font-semibold text-text-primary text-center text-sm">{category.name}</span>
     </div>
   );
 };

@@ -14,29 +14,29 @@
               serif: ['Playfair Display', 'serif'],
             },
             colors: {
-              // Primary Palette
-              royalBlue: '#1A3D7C',
-              deepNavy: '#0F1A2A',
-              goldAccent: '#D4AF37',
-              ivoryWhite: '#F8F5F0',
-              coolGray: '#DDE1E4',
+              background: '#F5F5F5', /* Neutral Grey */
+              surface: '#FFFFFF',
               
-              // Secondary Palette
-              softWhite: '#FAFAFA',
-              mistGray: '#E4E4E4',
-              shadowBlack: '#00000015',
-              frostedBlue: '#BFD4E5',
+              primary: '#4C40F7', /* Urban Purple */
+              'primary-hover': '#3a30d6',
+              'primary-subtle': '#EEEDFE',
+              
+              secondary: '#1A1A1A', /* Dark Grey */
+              
+              accent: '#00A8E8', /* Cyan/Blue Accent */
+              'accent-hover': '#008dc2',
+              'accent-subtle': '#E0F6FF',
+              
+              success: '#16A34A',
+              'success-hover': '#15803d',
+              error: '#DC2626',
+              'error-hover': '#b91c1c',
+              
+              'text-primary': '#1A1A1A',
+              'text-secondary': '#6B7280',
+              'text-tertiary': '#9CA3AF',
 
-              // Highlight / CTA
-              electricBlue: '#1976FF',
-              luxuryGold: '#CBA135',
-              emeraldGreen: '#2ECC71',
-              errorRed: '#FF3B30',
-              
-              // Typography
-              charcoalBlack: '#0B0B0B',
-              slateGray: '#6A6F73',
-              silverGray: '#9FA3A7',
+              border: '#E5E7EB',
             }
           }
         }
@@ -48,8 +48,6 @@
     <style>
       body {
         font-family: 'Poppins', sans-serif;
-        background-color: #F8F5F0; /* ivoryWhite */
-        color: #6A6F73; /* slateGray */
       }
       .font-display { font-family: 'Playfair Display', serif; }
 
@@ -59,27 +57,6 @@
       .hover-lift:hover {
         transform: translateY(-6px);
         box-shadow: 0 12px 28px rgba(0,0,0,0.1), 0 8px 12px rgba(0,0,0,0.08);
-      }
-
-      .glassmorphism {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-      
-      .soft-shadow {
-        box-shadow: 6px 6px 14px #d9d6d1, -6px -6px 14px #ffffff;
-      }
-      .soft-shadow-inset {
-         box-shadow: inset 6px 6px 14px #d9d6d1, inset -6px -6px 14px #ffffff;
-      }
-      
-      .btn-gold-glow {
-        box-shadow: 0 0 10px #CBA135, 0 0 20px #CBA13530;
-      }
-       .btn-green-glow {
-        box-shadow: 0 0 10px #2ECC71, 0 0 20px #2ECC7130;
       }
     </style>
   <script type="importmap">
@@ -96,7 +73,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-ivoryWhite text-slateGray">
+  <body class="bg-background text-text-secondary">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

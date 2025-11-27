@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Worker } from '../types';
 import { ALL_CATEGORIES } from '../data/mockData';
 
-const inputClasses = "w-full mt-1 pl-4 pr-4 py-3 border border-coolGray/30 rounded-full focus:ring-2 focus:ring-goldAccent/80 focus:border-goldAccent transition-shadow bg-ivoryWhite soft-shadow-inset text-charcoalBlack placeholder-slateGray";
-const labelClasses = "block text-sm font-semibold text-slateGray";
+const inputClasses = "w-full mt-1 pl-4 pr-4 py-3 border border-border rounded-full focus:ring-2 focus:ring-primary focus:border-primary transition-shadow bg-background shadow-inner text-text-primary placeholder-text-secondary";
+const labelClasses = "block text-sm font-semibold text-text-secondary";
 
 export const WorkerForm: React.FC<{
   initialData?: Worker;
@@ -96,19 +96,19 @@ export const WorkerForm: React.FC<{
         <input name="serviceAreas" value={formData.serviceAreas?.join(', ') || ''} onChange={handleCommaSeparatedChange('serviceAreas')} className={inputClasses}/>
       </div>
       <div className="flex flex-wrap gap-x-8 gap-y-4 pt-4">
-          <label className="flex items-center gap-2 text-charcoalBlack font-medium">
-              <input type="checkbox" name="verified" checked={!!formData.verified} onChange={handleChange} className="w-5 h-5 rounded text-royalBlue focus:ring-goldAccent"/> Verified
+          <label className="flex items-center gap-2 text-text-primary font-medium">
+              <input type="checkbox" name="verified" checked={!!formData.verified} onChange={handleChange} className="w-5 h-5 rounded text-primary focus:ring-primary"/> Verified
           </label>
-          <label className="flex items-center gap-2 text-charcoalBlack font-medium">
-              <input type="checkbox" name="available" checked={!!formData.available} onChange={handleChange} className="w-5 h-5 rounded text-royalBlue focus:ring-goldAccent"/> Available
+          <label className="flex items-center gap-2 text-text-primary font-medium">
+              <input type="checkbox" name="available" checked={!!formData.available} onChange={handleChange} className="w-5 h-5 rounded text-primary focus:ring-primary"/> Available
           </label>
-          <label className="flex items-center gap-2 text-charcoalBlack font-medium">
-              <input type="checkbox" name="featured" checked={!!formData.featured} onChange={handleChange} className="w-5 h-5 rounded text-royalBlue focus:ring-goldAccent"/> Featured
+          <label className="flex items-center gap-2 text-text-primary font-medium">
+              <input type="checkbox" name="featured" checked={!!formData.featured} onChange={handleChange} className="w-5 h-5 rounded text-primary focus:ring-primary"/> Featured
           </label>
       </div>
-      <div className="flex justify-end gap-4 pt-6 border-t border-coolGray/50">
-        <a href="#/admin/workers" className="px-6 py-2.5 rounded-lg bg-coolGray hover:bg-slateGray/30 text-charcoalBlack font-bold transition-colors">Cancel</a>
-        <button type="submit" className="px-6 py-2.5 rounded-lg bg-royalBlue hover:bg-deepNavy text-white font-bold transition-colors shadow-md hover-lift">{initialData ? 'Update Worker' : 'Add Worker'}</button>
+      <div className="flex justify-end gap-4 pt-6 border-t border-border/50">
+        <a href="#/admin/workers" className="px-6 py-2.5 rounded-lg bg-border hover:bg-gray-300 text-text-primary font-bold transition-colors">Cancel</a>
+        <button type="submit" className="px-6 py-2.5 rounded-lg bg-primary hover:bg-primary-hover text-white font-bold transition-colors shadow-md hover-lift">{initialData ? 'Update Worker' : 'Add Worker'}</button>
       </div>
     </form>
   );

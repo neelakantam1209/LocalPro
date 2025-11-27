@@ -12,15 +12,15 @@ interface ToastProps {
 const toastConfig = {
   success: {
     icon: <CheckCircleIcon className="w-6 h-6 text-white" />,
-    bgClass: 'bg-emeraldGreen',
+    bgClass: 'bg-success',
   },
   error: {
     icon: <XCircleIcon className="w-6 h-6 text-white" />,
-    bgClass: 'bg-errorRed',
+    bgClass: 'bg-error',
   },
   info: {
     icon: <InfoIcon className="w-6 h-6 text-white" />,
-    bgClass: 'bg-electricBlue',
+    bgClass: 'bg-primary',
   },
 };
 
