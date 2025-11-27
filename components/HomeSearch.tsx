@@ -17,18 +17,16 @@ const HomeSearch: React.FC<HomeSearchProps> = ({ initialLocation, onSearch, onDe
         setLocation(initialLocation);
     }, [initialLocation]);
 
-    // FIX: Removed the useEffect that triggered onSearch automatically on state change.
-    // This prevents the app from auto-redirecting to the worker list view when the default location is loaded.
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSearch(service, location);
+        window.scrollTo(0, 0); // Ensure scroll resets on search
     };
 
     return (
         <form 
             onSubmit={handleSubmit} 
-            className="bg-surface p-3 rounded-2xl flex flex-col md:flex-row items-center gap-2 border border-border shadow-xl"
+            className="bg-surface p-3 rounded-2xl flex flex-col md:flex-row items-center gap-2 border border-border shadow-xl relative z-10"
         >
             <div className="relative flex-grow w-full md:w-auto">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -38,7 +36,7 @@ const HomeSearch: React.FC<HomeSearchProps> = ({ initialLocation, onSearch, onDe
                 <select
                     value={service}
                     onChange={(e) => setService(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-transparent focus:outline-none text-text-primary font-medium appearance-none cursor-pointer"
+                    className="w-full pl-11 pr-4 py-3 bg-transparent focus:outline-none text-text-primary font-medium appearance-none cursor-pointer hover:bg-gray-50 rounded-lg transition-colors"
                 >
                     <option value="">All Services</option>
                     {ALL_CATEGORIES.map(cat => (
@@ -57,7 +55,7 @@ const HomeSearch: React.FC<HomeSearchProps> = ({ initialLocation, onSearch, onDe
                 <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full pl-11 pr-10 py-3 bg-transparent focus:outline-none text-text-primary font-medium appearance-none cursor-pointer"
+                    className="w-full pl-11 pr-10 py-3 bg-transparent focus:outline-none text-text-primary font-medium appearance-none cursor-pointer hover:bg-gray-50 rounded-lg transition-colors"
                 >
                      <option value="">All Locations</option>
                      <option value="Your Current Location">Your Current Location</option>

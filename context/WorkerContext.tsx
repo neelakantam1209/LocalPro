@@ -47,6 +47,7 @@ const defaultWorker: Worker = {
   bio: '',
   skills: [],
   badges: [],
+  jobsCompleted: 0,
 };
 
 export const WorkerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -76,6 +77,7 @@ export const WorkerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               serviceAreas: Array.isArray(worker.serviceAreas) ? worker.serviceAreas : [],
               skills: Array.isArray(worker.skills) ? worker.skills : [],
               badges: Array.isArray(worker.badges) ? worker.badges : [],
+              jobsCompleted: Number(worker.jobsCompleted || 0),
             }));
         }
       }

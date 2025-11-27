@@ -2,9 +2,11 @@ import React, { useContext } from 'react';
 import { WorkerContext } from '../context/WorkerContext';
 import { Worker } from '../types';
 import { EditIcon, TrashIcon, CheckCircleIcon, XCircleIcon, StarIcon, PlusIcon, DocumentArrowDownIcon } from '../components/icons';
+import { useNavigate } from 'react-router-dom';
 
 const WorkerListPage: React.FC = () => {
     const workerContext = useContext(WorkerContext);
+    const navigate = useNavigate();
     if (!workerContext) return null;
     const { workers, deleteWorker, updateWorker } = workerContext;
     
@@ -14,6 +16,10 @@ const WorkerListPage: React.FC = () => {
 
     const handleToggleFeatured = (worker: Worker) => {
         updateWorker({ ...worker, featured: !worker.featured });
+    };
+
+    const navigateToEdit = (id: number) => {
+        navigate(`/admin/workers/edit/${id}`);
     };
 
     const escapeCsvCell = (cellData: any): string => {
@@ -38,27 +44,40 @@ const WorkerListPage: React.FC = () => {
         document.body.removeChild(link);
     };
 
+    // Helper component for Star Rating display
+    const RatingDisplay = ({ rating, count }: { rating: number, count: number }) => (
+        <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-text-secondary">Rating:</span>
+            <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <StarIcon key={star} className={`w-4 h-4 ${star <= Math.round(rating) ? 'text-accent' : 'text-gray-300'}`} />
+                ))}
+            </div>
+            <span className="text-xs text-text-secondary font-medium">({count} ratings)</span>
+        </div>
+    );
+
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <h1 className="text-3xl md:text-4xl font-bold font-display text-text-primary">Worker Management</h1>
-                <div className="flex gap-3">
-                    <button onClick={handleCsvExport} className="bg-text-secondary hover:bg-text-primary text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-300 shadow-md hover-lift">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-display text-text-primary">Worker Management</h1>
+                <div className="flex gap-3 w-full md:w-auto">
+                    <button onClick={handleCsvExport} className="flex-1 md:flex-none justify-center bg-text-secondary hover:bg-text-primary text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-300 shadow-md hover-lift">
                         <DocumentArrowDownIcon/> Export
                     </button>
-                    <a href="#/admin/workers/add" className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-300 shadow-md hover-lift">
+                    <a href="#/admin/workers/add" className="flex-1 md:flex-none justify-center bg-primary hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-300 shadow-md hover-lift">
                         <PlusIcon /> Add Worker
                     </a>
                 </div>
             </div>
             
-            <div className="bg-surface rounded-2xl shadow-lg">
+            <div className="bg-surface rounded-2xl shadow-lg overflow-hidden">
                 {/* Desktop Header */}
-                <div className="hidden md:grid md:grid-cols-7 items-center gap-4 px-6 py-4 text-xs text-primary uppercase bg-background">
+                <div className="hidden lg:grid lg:grid-cols-7 items-center gap-4 px-6 py-4 text-xs text-primary uppercase bg-background border-b border-border">
                     <div className="col-span-2 font-semibold">Worker</div>
                     <div className="font-semibold">Category</div>
                     <div className="font-semibold">Location</div>
-                    <div className="font-semibold">Rating</div>
+                    <div className="col-span-1 font-semibold">Rating</div>
                     <div className="font-semibold text-center">Verified</div>
                     <div className="font-semibold text-center">Featured</div>
                     <div className="font-semibold text-center">Actions</div>
@@ -67,58 +86,75 @@ const WorkerListPage: React.FC = () => {
                 {/* Worker List */}
                 <div className="divide-y divide-border">
                     {workers.map(worker => (
-                        <div key={worker.id} className="p-4 md:grid md:grid-cols-7 md:items-center md:gap-4 md:p-0 md:px-6 md:py-4 hover:bg-background transition-colors">
+                        <div key={worker.id} className="p-4 lg:grid lg:grid-cols-7 lg:items-center lg:gap-4 lg:px-6 lg:py-5 hover:bg-background transition-colors">
                             
                             {/* --- Worker Info --- */}
-                            <div className="md:col-span-2 flex items-center gap-3">
-                                <img src={worker.photo} alt={worker.name} className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"/>
+                            <div className="lg:col-span-2 flex items-center gap-4 mb-4 lg:mb-0">
+                                <button 
+                                    onClick={() => navigateToEdit(worker.id)} 
+                                    className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                    <img src={worker.photo} alt={worker.name} className="w-12 h-12 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-white shadow-md"/>
+                                </button>
                                 <div>
-                                    <div className="font-bold text-text-primary">{worker.name}</div>
-                                    <div className="text-text-secondary text-xs">{worker.experience} yrs exp.</div>
+                                    <button 
+                                        onClick={() => navigateToEdit(worker.id)}
+                                        className="font-bold text-text-primary hover:text-primary transition-colors text-left"
+                                    >
+                                        {worker.name}
+                                    </button>
+                                    <div className="text-text-secondary text-xs">{worker.experience} yrs exp. • {worker.age} yrs old</div>
                                 </div>
                             </div>
                             
-                            {/* --- Details Grid (Mobile) / Direct Children (Desktop) --- */}
-                            <div className="grid grid-cols-2 gap-y-3 gap-x-4 mt-4 text-sm md:contents">
-                                <div className="flex justify-between items-center md:block">
-                                    <span className="font-semibold text-text-secondary md:hidden">Category: </span>
-                                    <span>{worker.categoryName}</span>
-                                </div>
-                                <div className="flex justify-between items-center md:block">
-                                    <span className="font-semibold text-text-secondary md:hidden">Location: </span>
-                                    <span>{worker.city}</span>
-                                </div>
+                            {/* --- Details for Mobile (Stacked) / Desktop (Grid) --- */}
+                            
+                            {/* Category */}
+                            <div className="mb-2 lg:mb-0 flex items-center justify-between lg:block">
+                                <span className="lg:hidden font-semibold text-text-secondary text-sm">Category:</span>
+                                <span className="text-text-primary">{worker.categoryName}</span>
+                            </div>
 
-                                <div className="col-span-2 flex justify-between items-center md:block">
-                                    <span className="font-semibold text-text-secondary md:hidden">Rating: </span>
-                                    <div className="flex items-center gap-1">
-                                        <StarIcon className="text-accent"/>
-                                        <span className="font-bold">{worker.rating.toFixed(1)}</span> <span className="text-text-secondary text-xs">({worker.reviewCount})</span>
-                                    </div>
-                                </div>
-                                
-                                <div className="flex justify-between items-center md:justify-center">
-                                    <span className="font-semibold text-text-secondary md:hidden">Verified: </span>
-                                    <button onClick={() => handleToggleVerified(worker)} className="cursor-pointer">
-                                        {worker.verified ? <CheckCircleIcon className="w-6 h-6 text-success"/> : <XCircleIcon className="w-6 h-6 text-accent"/>}
+                            {/* Location */}
+                            <div className="mb-2 lg:mb-0 flex items-center justify-between lg:block">
+                                <span className="lg:hidden font-semibold text-text-secondary text-sm">Location:</span>
+                                <span className="text-text-primary">{worker.city}</span>
+                            </div>
+
+                            {/* Rating */}
+                            <div className="col-span-1 mb-2 lg:mb-0 flex items-center justify-between lg:block">
+                                <span className="lg:hidden font-semibold text-text-secondary text-sm">Rating:</span>
+                                <RatingDisplay rating={worker.rating} count={worker.reviewCount} />
+                            </div>
+                            
+                            {/* Verified */}
+                            <div className="mb-2 lg:mb-0 flex items-center justify-between lg:justify-center">
+                                <span className="lg:hidden font-semibold text-text-secondary text-sm">Verified:</span>
+                                <button onClick={() => handleToggleVerified(worker)} className="cursor-pointer">
+                                    {worker.verified ? <CheckCircleIcon className="w-6 h-6 text-success"/> : <XCircleIcon className="w-6 h-6 text-accent"/>}
+                                </button>
+                            </div>
+
+                            {/* Featured */}
+                            <div className="mb-4 lg:mb-0 flex items-center justify-between lg:justify-center">
+                                <span className="lg:hidden font-semibold text-text-secondary text-sm">Featured:</span>
+                                <button onClick={() => handleToggleFeatured(worker)} className="cursor-pointer">
+                                    <StarIcon className={`w-6 h-6 transition-colors ${worker.featured ? 'text-accent' : 'text-border'}`}/>
+                                </button>
+                            </div>
+
+                            {/* --- Actions --- */}
+                            <div className="lg:col-span-1 border-t lg:border-t-0 pt-3 lg:pt-0">
+                                <div className="flex justify-end lg:justify-center items-center gap-4">
+                                    <a href={`#/admin/workers/edit/${worker.id}`} className="flex items-center gap-1 font-medium text-primary hover:text-accent transition-colors">
+                                        <EditIcon/> <span className="lg:hidden">Edit</span>
+                                    </a>
+                                    <button onClick={() => deleteWorker(worker.id)} className="flex items-center gap-1 font-medium text-text-secondary hover:text-error transition-colors">
+                                        <TrashIcon/> <span className="lg:hidden">Delete</span>
                                     </button>
-                                </div>
-
-                                <div className="flex justify-between items-center md:justify-center">
-                                    <span className="font-semibold text-text-secondary md:hidden">Featured: </span>
-                                    <button onClick={() => handleToggleFeatured(worker)} className="cursor-pointer">
-                                        <StarIcon className={`w-6 h-6 transition-colors ${worker.featured ? 'text-accent' : 'text-border'}`}/>
-                                    </button>
-                                </div>
-
-                                {/* --- Actions --- */}
-                                <div className="col-span-2 md:col-span-1 border-t mt-3 pt-3 md:border-t-0 md:mt-0 md:pt-0">
-                                    <div className="flex justify-end items-center gap-4 md:justify-center">
-                                        <a href={`#/admin/workers/edit/${worker.id}`} className="font-medium text-primary hover:text-accent transition-colors"><EditIcon/></a>
-                                        <button onClick={() => deleteWorker(worker.id)} className="font-medium text-text-secondary hover:text-error transition-colors"><TrashIcon/></button>
-                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     ))}
                     {workers.length === 0 && <p className="text-center p-8 text-text-secondary">No workers found. Click "Add Worker" to get started.</p>}

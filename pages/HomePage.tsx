@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
-import { Category, Worker, Review, Booking } from '../types';
+import React, { useState, useEffect, useMemo, useContext, useRef, useLayoutEffect } from 'react';
+import { Category, Worker, Review, Booking, Offer } from '../types';
 import { CATEGORY_SECTIONS } from '../data/mockData';
 import { getCategoryTip } from '../services/geminiService';
 import Header from '../components/Header';
@@ -10,7 +10,8 @@ import WorkerProfileModal from '../components/WorkerProfileModal';
 import RecommendedWorkerCard from '../components/RecommendedWorkerCard';
 import HomeSearch from '../components/HomeSearch';
 import Footer from '../components/Footer';
-import { BackArrowIcon, LoadingIcon, SparklesIcon, UserGroupIcon, CloseIcon, TrashIcon } from '../components/icons';
+import FloatingCart from '../components/FloatingCart';
+import { BackArrowIcon, LoadingIcon, SparklesIcon, UserGroupIcon, CloseIcon, TrashIcon, TagIcon } from '../components/icons';
 import { WorkerContext } from '../context/WorkerContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
@@ -212,11 +213,29 @@ const BookingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     );
 }
 
+// --- Offer Card ---
+const OfferCard: React.FC<{ offer: Offer }> = ({ offer }) => {
+    return (
+        <div className="bg-gradient-to-br from-primary-subtle to-surface p-4 rounded-xl shadow-md border border-border flex flex-col h-full hover-lift transition-transform">
+            <div className="flex justify-between items-start mb-2">
+                <div className="bg-accent text-white text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">
+                    {offer.type === 'percentage' ? `${offer.value}% OFF` : `₹${offer.value} FLAT`}
+                </div>
+                <TagIcon className="w-5 h-5 text-primary opacity-50" />
+            </div>
+            <h3 className="font-bold text-text-primary text-lg mb-1 line-clamp-1">{offer.title}</h3>
+            <p className="text-sm text-text-secondary line-clamp-2 mb-3 flex-grow">{offer.description}</p>
+            <p className="text-xs text-text-tertiary mt-auto">Valid till: {new Date(offer.validTill).toLocaleDateString()}</p>
+        </div>
+    );
+};
+
+
 const HomePage: React.FC = () => {
   const workerContext = useContext(WorkerContext);
   const cartContext = useCart();
   if (!workerContext) throw new Error("WorkerContext not found");
-  const { workers, favorites, toggleFavorite, addReview } = workerContext;
+  const { workers, favorites, toggleFavorite, addReview, offers } = workerContext;
 
   const [listContext, setListContext] = useState<{title: string, fromCategory?: Category} | null>(null);
   const [displayedWorkers, setDisplayedWorkers] = useState<Worker[] | null>(null);
@@ -226,24 +245,38 @@ const HomePage: React.FC = () => {
   const [workerForQuickBooking, setWorkerForQuickBooking] = useState<Worker | null>(null);
   const [aiTip, setAiTip] = useState<string>('');
   const [isLoadingTip, setIsLoadingTip] = useState(false);
-  const [location, setLocation] = useState<string>('');
   const [userCoords, setUserCoords] = useState<{ lat: number, lon: number }>(HYDERABAD_CENTER);
+
+  // Sorting
+  const [sortBy, setSortBy] = useState<'recommended' | 'rating' | 'experience' | 'jobs'>('recommended');
 
   // UI States
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isBookingsOpen, setIsBookingsOpen] = useState(false);
+
+  // Scroll Position Memory
+  const scrollPosRef = useRef(0);
+
+  // Scroll Restoration Logic
+  useLayoutEffect(() => {
+    if (listContext !== null) {
+        // Entering List View: Scroll to top to see results
+        window.scrollTo(0, 0);
+    } else {
+        // Returning to Home View: Restore previous scroll position
+        window.scrollTo(0, scrollPosRef.current);
+    }
+  }, [listContext]);
 
   const handleDetectLocation = (showAlert = true) => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         setUserCoords({ lat: latitude, lon: longitude });
-        setLocation('Your Current Location');
       },
       () => {
         if (showAlert) alert("Could not get your location.");
         setUserCoords(HYDERABAD_CENTER);
-        setLocation('Hyderabad');
       }
     );
   };
@@ -263,14 +296,32 @@ const HomePage: React.FC = () => {
       .slice(0, 5);
   }, [workers, userCoords]);
   
+  const popularWorkers = useMemo(() => {
+      return [...workers]
+        .sort((a,b) => (b.rating * b.reviewCount) - (a.rating * a.reviewCount))
+        .slice(0, 5);
+  }, [workers]);
+
   const hyderabadLocations = useMemo(() => {
     const locations = workers.map(w => w.city);
     return [...new Set(locations)];
   }, [workers]);
 
+  const displayedOffers = useMemo(() => {
+    // Return random 5 offers if available, or all of them
+    const shuffled = [...offers].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 5);
+  }, [offers]);
+
+
   const handleSelectCategory = async (category: Category) => {
+    // Save current scroll position before switching view
+    scrollPosRef.current = window.scrollY;
+
     setSearchTerm('');
+    setSortBy('recommended');
     
+    // Explicitly filter workers by categoryId match
     const results = workers
       .filter(w => w.categoryId === category.id)
       .map(worker => ({
@@ -295,19 +346,22 @@ const HomePage: React.FC = () => {
   };
 
   const handleSearch = (serviceQuery: string, locationQuery: string) => {
+    scrollPosRef.current = window.scrollY;
     setSearchTerm('');
+    setSortBy('recommended');
     // Enhanced filtering logic (Categories + Location)
     const service = serviceQuery.trim().toLowerCase();
     const locationStr = locationQuery.trim().toLowerCase();
     
     if (!service && !locationStr) {
-        setDisplayedWorkers(null); // Reset if empty
+        setDisplayedWorkers(null); 
         return;
     }
 
     let results = workers.filter(worker => {
         const serviceMatch = service === '' || 
-                             worker.categoryName.toLowerCase().includes(service); // Match category name
+                             worker.categoryName.toLowerCase().includes(service) ||
+                             worker.categoryId === serviceQuery; // Handle direct ID match
 
         const locationMatch = locationStr === '' ||
                               locationQuery === 'Your Current Location' ||
@@ -338,6 +392,10 @@ const HomePage: React.FC = () => {
   const handleOpenQuickBook = (worker: Worker) => {
     setWorkerForQuickBooking(worker);
   };
+  
+  const handleWorkerSelect = (worker: Worker) => {
+      setSelectedWorker(worker);
+  };
 
   const handleAddToCart = (worker: Worker) => {
       cartContext.addToCart({
@@ -351,40 +409,55 @@ const HomePage: React.FC = () => {
 
   const finalWorkersToList = useMemo(() => {
     if (!displayedWorkers) return [];
+    
+    let filtered = [...displayedWorkers];
+
+    // Filter by text search within the list
     const refinedSearchTerm = searchTerm.trim().toLowerCase();
-    if (!refinedSearchTerm) return displayedWorkers;
-    return displayedWorkers.filter(worker => 
-        worker.name.toLowerCase().includes(refinedSearchTerm) ||
-        worker.serviceAreas.some(area => area.toLowerCase().includes(refinedSearchTerm))
-    );
-  }, [displayedWorkers, searchTerm]);
+    if (refinedSearchTerm) {
+        filtered = filtered.filter(worker => 
+            worker.name.toLowerCase().includes(refinedSearchTerm) ||
+            worker.serviceAreas.some(area => area.toLowerCase().includes(refinedSearchTerm))
+        );
+    }
+    
+    // Sorting Logic
+    if (sortBy === 'rating') {
+        filtered.sort((a, b) => b.rating - a.rating);
+    } else if (sortBy === 'experience') {
+        filtered.sort((a, b) => b.experience - a.experience);
+    } else if (sortBy === 'jobs') {
+        filtered.sort((a, b) => b.jobsCompleted - a.jobsCompleted);
+    }
+    
+    return filtered;
+  }, [displayedWorkers, searchTerm, sortBy]);
 
   return (
     <div className="min-h-screen bg-background text-text-secondary flex flex-col">
       <Header 
-        location={location || 'Hyderabad'} 
         onOpenCart={() => setIsCartOpen(true)}
         onOpenBookings={() => setIsBookingsOpen(true)}
       />
-      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
+      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 relative">
         {listContext === null ? (
           // Home View
           <>
             <div 
-              className="relative bg-cover bg-center pt-16 pb-20 md:pt-24 md:pb-28 mb-16 rounded-b-2xl overflow-hidden shadow-xl"
+              className="relative bg-cover bg-center pt-16 pb-20 md:pt-24 md:pb-28 mb-16 rounded-b-3xl overflow-hidden shadow-2xl"
               style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2070&auto=format&fit=crop')" }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-secondary/60"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary/90 to-primary/80"></div>
               <div className="relative container mx-auto px-4 text-center text-white">
-                <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight">
-                  Home Services, On Demand.
+                <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight animate-in slide-in-from-bottom-5 duration-700">
+                  Home Services, <span className="text-accent">Simplified.</span>
                 </h1>
-                <p className="mt-4 text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-                  Cleaning, Maintenance, Repairs, and more. Trusted professionals at your doorstep.
+                <p className="mt-4 text-lg md:text-xl text-white/90 max-w-3xl mx-auto animate-in slide-in-from-bottom-5 duration-700 delay-100">
+                  Find trusted professionals for cleaning, repairs, and more.
                 </p>
-                <div className="max-w-4xl mx-auto mt-8 text-left">
+                <div className="max-w-4xl mx-auto mt-8 text-left animate-in slide-in-from-bottom-5 duration-700 delay-200">
                   <HomeSearch 
-                    initialLocation={location} 
+                    initialLocation={'Hyderabad'} 
                     onSearch={handleSearch} 
                     onDetectLocation={handleDetectLocation} 
                     locations={hyderabadLocations} 
@@ -393,16 +466,40 @@ const HomePage: React.FC = () => {
               </div>
             </div>
 
+            {/* OFFERS SECTION */}
+            {displayedOffers.length > 0 && (
+                <div className="mb-16 animate-in fade-in duration-500">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-6 px-1">🔥 Exclusive Offers</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                        {displayedOffers.map(offer => (
+                            <div key={offer.id}>
+                                <OfferCard offer={offer} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
             {featuredWorkers.length > 0 && (
               <div className="mb-16">
                 <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-6 px-1">⭐ Featured Professionals</h2>
                 <div className="flex gap-6 overflow-x-auto pb-6 -mx-4 px-4 scrollbar-hide">
                   {featuredWorkers.map(worker => (
-                    <RecommendedWorkerCard key={worker.id} worker={worker} onSelect={setSelectedWorker} onBookNow={handleOpenQuickBook} />
+                    <RecommendedWorkerCard key={worker.id} worker={worker} onSelect={handleWorkerSelect} onBookNow={handleOpenQuickBook} />
                   ))}
                 </div>
               </div>
             )}
+            
+            {/* Popular Workers */}
+             <div className="mb-16">
+                <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-6 px-1">🏆 Most Popular</h2>
+                <div className="flex gap-6 overflow-x-auto pb-6 -mx-4 px-4 scrollbar-hide">
+                  {popularWorkers.map(worker => (
+                    <RecommendedWorkerCard key={`pop-${worker.id}`} worker={worker} onSelect={handleWorkerSelect} onBookNow={handleOpenQuickBook} />
+                  ))}
+                </div>
+              </div>
 
             <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-8 px-1">Browse by Category</h2>
             <div className="space-y-12 mb-12">
@@ -422,7 +519,7 @@ const HomePage: React.FC = () => {
           </>
         ) : (
           // Worker List View
-          <div>
+          <div className="animate-in fade-in duration-300">
             <button onClick={handleBack} className="flex items-center gap-2 mb-4 text-primary hover:text-accent font-semibold transition-colors">
               <BackArrowIcon />
               Back
@@ -447,7 +544,26 @@ const HomePage: React.FC = () => {
               </div>
             }
 
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder={`Filter by name or specific skill...`} />
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                 <div className="flex-1">
+                    <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder={`Filter by name or specific skill...`} />
+                 </div>
+                 {/* Quick Filters */}
+                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                     <button onClick={() => setSortBy('recommended')} className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${sortBy === 'recommended' ? 'bg-secondary text-white' : 'bg-surface border border-border hover:bg-background'}`}>
+                         Recommended
+                     </button>
+                     <button onClick={() => setSortBy('rating')} className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${sortBy === 'rating' ? 'bg-secondary text-white' : 'bg-surface border border-border hover:bg-background'}`}>
+                         Top Rated
+                     </button>
+                     <button onClick={() => setSortBy('experience')} className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${sortBy === 'experience' ? 'bg-secondary text-white' : 'bg-surface border border-border hover:bg-background'}`}>
+                         Most Experienced
+                     </button>
+                     <button onClick={() => setSortBy('jobs')} className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${sortBy === 'jobs' ? 'bg-secondary text-white' : 'bg-surface border border-border hover:bg-background'}`}>
+                         Most Jobs
+                     </button>
+                 </div>
+            </div>
             
             {finalWorkersToList.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
@@ -455,7 +571,7 @@ const HomePage: React.FC = () => {
                   <WorkerCard 
                     key={worker.id} 
                     worker={worker} 
-                    onSelect={setSelectedWorker}
+                    onSelect={handleWorkerSelect}
                     isFavorite={favorites.includes(worker.id)}
                     onToggleFavorite={() => toggleFavorite(worker.id)}
                     onBookNow={handleOpenQuickBook}
@@ -467,11 +583,19 @@ const HomePage: React.FC = () => {
               <div className="text-center text-text-secondary mt-10 py-16 border-2 border-dashed border-border/60 rounded-lg">
                 <UserGroupIcon className="mx-auto h-16 w-16 text-border" />
                 <h3 className="mt-4 text-xl font-display font-medium text-text-primary">No professionals found</h3>
-                <p className="mt-2 text-base text-text-secondary">Try adjusting your search filters.</p>
+                <p className="mt-2 text-base text-text-secondary">
+                    {listContext.fromCategory 
+                     ? `We are currently onboarding ${listContext.fromCategory.name} in your area.` 
+                     : "Try adjusting your search filters."}
+                </p>
               </div>
             )}
           </div>
         )}
+        
+        {/* Floating Cart Drop Zone */}
+        <FloatingCart onOpenCart={() => setIsCartOpen(true)} />
+
       </main>
       
       <Footer />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Worker } from '../types';
-import { StarIcon, PhoneIcon, CalendarIcon } from './icons';
+import { PhoneIcon, CalendarIcon } from './icons';
+import StarRating from './StarRating';
 
 interface RecommendedWorkerCardProps {
   worker: Worker;
@@ -24,14 +25,12 @@ const RecommendedWorkerCard: React.FC<RecommendedWorkerCardProps> = ({ worker, o
       className="bg-surface rounded-2xl shadow-lg hover-lift cursor-pointer flex-shrink-0 w-72 border border-border flex flex-col"
     >
       <div className="p-4 flex items-center gap-4">
-        <img src={worker.photo} alt={worker.name} className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg" />
+        <img src={worker.photo} alt={worker.name} className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0" />
         <div className="flex-1 overflow-hidden">
           <h3 className="text-lg font-bold font-display text-text-primary truncate">{worker.name}</h3>
           <p className="text-sm text-text-secondary">{worker.categoryName}</p>
-          <div className="flex items-center gap-1 mt-1 text-sm">
-            <StarIcon className="w-4 h-4 text-accent" />
-            <span className="font-bold text-text-primary">{worker.rating.toFixed(1)}</span>
-            <span className="text-text-secondary text-xs">({worker.reviewCount})</span>
+          <div className="mt-1">
+             <StarRating rating={worker.rating} count={worker.reviewCount} size="sm" />
           </div>
         </div>
       </div>
@@ -44,7 +43,7 @@ const RecommendedWorkerCard: React.FC<RecommendedWorkerCardProps> = ({ worker, o
                 aria-label={`Call ${worker.name}`}
             >
                 <PhoneIcon className="w-4 h-4" />
-                <span>Call Now</span>
+                <span>Call</span>
             </a>
             <button 
                 onClick={handleBookClick}
@@ -52,7 +51,7 @@ const RecommendedWorkerCard: React.FC<RecommendedWorkerCardProps> = ({ worker, o
                 aria-label={`Book ${worker.name}`}
             >
                 <CalendarIcon className="w-4 h-4" />
-                <span>Book Now</span>
+                <span>Book</span>
             </button>
         </div>
       </div>

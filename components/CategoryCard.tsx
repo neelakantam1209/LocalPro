@@ -11,7 +11,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onSelect }) => {
   return (
     <div
       onClick={() => onSelect(category)}
-      className="bg-surface p-4 rounded-2xl shadow-md hover-lift cursor-pointer flex flex-col items-center justify-center text-center aspect-square group"
+      className="bg-surface p-4 rounded-2xl shadow-md hover-lift cursor-pointer flex flex-col items-center justify-center text-center aspect-square group transition-colors hover:border-primary border border-transparent"
     >
       <div className="bg-background rounded-full p-3 sm:p-4 mb-3 shadow-inner transition-all duration-300 group-hover:bg-accent-subtle">
         <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-primary transition-colors duration-300 group-hover:text-accent" />

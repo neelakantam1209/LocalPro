@@ -3,11 +3,22 @@ import { Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { DashboardIcon, UsersIcon, LogoutIcon, MenuIcon, HomeIcon, TagIcon } from './icons';
 
-const NavLink: React.FC<{ to: string; children: React.ReactNode; icon: React.ReactNode }> = ({ to, children, icon }) => {
+interface NavLinkProps {
+    to: string;
+    children: React.ReactNode;
+    icon: React.ReactNode;
+    onClick?: () => void;
+}
+
+const NavLink: React.FC<NavLinkProps> = ({ to, children, icon, onClick }) => {
     const location = useLocation();
     const isActive = location.pathname === to;
     return (
-        <Link to={to} className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-semibold ${isActive ? 'bg-primary text-white shadow-md' : 'text-text-secondary hover:bg-primary-subtle hover:text-primary'}`}>
+        <Link 
+            to={to} 
+            onClick={onClick}
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-semibold ${isActive ? 'bg-primary text-white shadow-md' : 'text-text-secondary hover:bg-primary-subtle hover:text-primary'}`}
+        >
             {icon}
             <span>{children}</span>
         </Link>
@@ -16,6 +27,15 @@ const NavLink: React.FC<{ to: string; children: React.ReactNode; icon: React.Rea
 
 const AdminSidebar: React.FC<{ isOpen: boolean, onClose: () => void }> = ({ isOpen, onClose }) => {
     const { logout } = useContext(AuthContext);
+
+    // Function to handle link clicks, closing the sidebar only on mobile
+    const handleLinkClick = () => {
+        // Only trigger close if it's potentially open on mobile (though safe to call always as layout manages state)
+        if (window.innerWidth < 768) {
+            onClose();
+        }
+    };
+
     return (
         <>
             {/* Overlay for mobile */}
@@ -30,13 +50,13 @@ const AdminSidebar: React.FC<{ isOpen: boolean, onClose: () => void }> = ({ isOp
                 <nav className="flex-grow mt-8">
                     <ul className="space-y-3">
                         <li>
-                            <NavLink to="/admin/dashboard" icon={<DashboardIcon className="w-6 h-6"/>}>Dashboard</NavLink>
+                            <NavLink to="/admin/dashboard" icon={<DashboardIcon className="w-6 h-6"/>} onClick={handleLinkClick}>Dashboard</NavLink>
                         </li>
                         <li>
-                            <NavLink to="/admin/workers" icon={<UsersIcon className="w-6 h-6"/>}>Workers</NavLink>
+                            <NavLink to="/admin/workers" icon={<UsersIcon className="w-6 h-6"/>} onClick={handleLinkClick}>Workers</NavLink>
                         </li>
                         <li>
-                            <NavLink to="/admin/offers" icon={<TagIcon className="w-6 h-6"/>}>Offers</NavLink>
+                            <NavLink to="/admin/offers" icon={<TagIcon className="w-6 h-6"/>} onClick={handleLinkClick}>Offers</NavLink>
                         </li>
                     </ul>
                 </nav>
@@ -62,7 +82,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
         <div className="flex min-h-screen bg-background">
             <AdminSidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
-            <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+            <main className="flex-1 p-4 lg:p-10 overflow-y-auto w-full">
                  {/* Mobile Header */}
                 <div className="md:hidden flex justify-between items-center mb-6">
                     <a href="#/" className="text-2xl font-bold font-display text-primary">

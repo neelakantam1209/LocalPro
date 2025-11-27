@@ -46,6 +46,7 @@ export interface Worker {
   hourlyRate?: number;
   nextAvailable?: string;
   badges?: string[];
+  jobsCompleted: number; // NEW FIELD
   createdAt?: string;
   updatedAt?: string;
 }
