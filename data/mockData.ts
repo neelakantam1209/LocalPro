@@ -16,7 +16,7 @@ const householdCategories: Category[] = [
     { id: 'pest-control', name: 'Pest Control', icon: PestControlIcon },
     { id: 'coconut-climber', name: 'Coconut Tree Climber', icon: TreeIcon },
     { id: 'painter', name: 'Painters', icon: PaintBrushIcon },
-    { id: 'mover', name: 'Movers', icon: DollyIcon },
+    { id: 'mover', name: 'Movers', icon: DollyIcon},
 ];
 
 const specializedCategories: Category[] = [
